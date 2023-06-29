@@ -35,12 +35,16 @@ Inputs:
     x, o => For players
     q => Breaks out of the game or the Loop
 """
+
 # list of board
 board = [
     ["-", "-", "-"],
     ["-", "-", "-"],
     ["-", "-", "-"]
 ]
+
+user = True     # True = 'x', else 'o'
+turns = 0
 
 # Print the Tic tac toe board to the terminal for the user.
 # To print the board list, first iterate through each rows, then on wach rows iterate through each Slots.
@@ -55,34 +59,29 @@ def quit(user_input):
     if user_input.lower() == "q": 
         print("Thank you for playing Tic tac toe")
         return True
-    else:
-        return False
+    else: return False
 
 # Func to check the user input
 def check_input(user_input):
     # Check if user input is a number by calling the isnum() func. If not a number return False, else True
-    if not isnum(user_input): 
-        return False
+    if not isnum(user_input): return False
     user_input = int(user_input)        ## Converting userinput into a integer
     # Check if the number is 1 through 9
-    if not num_criteria(user_input):
-        return False
+    if not num_criteria(user_input): return False
     
 # Check if user input is a number
 def isnum(user_input):
-        if not user_input.isnumeric():
-            print("This is not a number!")
-            return False
-        else:
-            return True
+    if not user_input.isnumeric():
+        print("This is not a number!")
+        return False
+    else: return True
 
 # Fun that checks if the number entered is from 1 - 9 our num_criteria
 def num_criteria(user_input):
-   if user_input >9 or user_input <1:
+   if user_input > 9 or user_input < 1:
        print("This number does not meet the numeric criteria of 1 through 9!")
        return False
-   else:
-       return True
+   else: return True
 
 # Func to check if the slot is already taken in the board in the 2D Array list
 def is_slotTaken(coordinates, board):
@@ -91,28 +90,66 @@ def is_slotTaken(coordinates, board):
     if board[row][col] != "-":
         print("This position is already taken!")
         return True
-    else:
-        return False
-    
+    else: return False
     
 # Func to get the coordinates of the 2D List. 
 def coordinates(user_input):
     row = int(user_input / 3) 
     col = user_input
-    if col > 2:
-        col = int(col %3)
+    if col > 2: col = int(col %3)
     return (row, col)
 
+def add_to_board(coordinates, board, active_user):
+    row = coordinates[0]
+    col = coordinates[1]
+    board[row][col] = active_user
 
+# toggle handler
+def current_user(user):
+    if user: return 'x'
+    else: return 'o'
+    
+    
+def iswin(user, board):
+    if check_row(user, board): return True
+    if check_col(user, board): return True
+    if check_diagonal(user, board): return True
+    return False
+    
+def check_row(user, board):
+    for row in board:
+        complete_row = True
+        for slot in row:
+            if slot != user:
+                complete_row = False
+                break
+        if complete_row: return True
+    return False
 
-
-while True:
+def check_col(user, board):
+    for col in range(3):
+        complete_col = True
+        for row in range(3):
+            if board[row][col]  != user:
+                complete_col = False
+                break
+        if complete_col: return True
+    return False
+                
+def check_diagonal(user, board):
+    # top left - bottom right 
+    if board[0][0] == user and board[1][1] == user and board[2][2] == user : return True
+    elif board[0][2] == user and board[1][1] == user and board[2][0] == user: return True   
+    else: return False       
+                
+                
+while turns < 9:
+    active_user = current_user(user)       # Returns the string x or o
     # Re-print the board once the while loop is complete iterating.
     print_board(board)
     # input 'q' breaks the loop
     user_input = input("Please enter a position from 1 through 9 or enter \"q\" to quit the game: ")
-    if quit(user_input):
-        break
+    if quit(user_input): break
     if not check_input(user_input):
         print("Please try again.")
         continue    # Re run the loop from the begining. 
@@ -121,11 +158,20 @@ while True:
     user_input = int(user_input) - 1
     # Save coordinates as a value.
     coordinates = coordinates(user_input)
-    # At 0th index, hard-coding it as 'x'
-    board[0][0] = "x"
     if is_slotTaken(coordinates, board):
         print("Please try again!")
         continue    # Re run the loop from the begining. 
+    add_to_board(coordinates, board, active_user)
+    
+    if iswin(active_user, board):
+        print(f"{active_user.upper()} won!")
+        break
+    
+    turns +=1
+    
+    if turns == 9: print("It's a Dwaw!")
+    
+    user = not user 
     
     
     
